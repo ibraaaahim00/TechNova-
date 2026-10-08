@@ -24,8 +24,9 @@ it('redirects guests away from the CMS and forbids a regular account', function 
 it('renders the dashboard and an editable CMS form for an administrator', function () {
     $this->actingAs(User::factory()->create(['is_admin' => true]));
 
-    $this->get('/admin')->assertOk()->assertSee('Good to see you')->assertSee('Quick actions');
+    $this->get('/admin')->assertOk()->assertSee('Good to see you')->assertSee('Quick actions')->assertSee('Dashboard footer links')->assertSee('All rights reserved.');
     $this->get('/admin/services/create')->assertOk()->assertSee('Content details')->assertSee('Create item')->assertSee('translations[en][title]')->assertSee('translations[ar][title]');
+    $this->get('/admin?lang=ar')->assertOk()->assertSee('روابط تذييل لوحة التحكم')->assertSee('أدر حضور TechNova الرقمي من مكان واحد.')->assertSee('dir="rtl"', false);
 });
 
 it('creates, edits, publishes, unpublishes and deletes translated CMS content with uploads', function () {

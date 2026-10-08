@@ -295,5 +295,10 @@
     "The image path field must be an image.": "يجب أن يكون الملف المرفوع صورة صالحة.",
     "The photo path field must be an image.": "يجب أن تكون الصورة الشخصية ملف صورة صالحًا.",
     "The cover path field must be an image.": "يجب أن تكون صورة الغلاف ملف صورة صالحًا.",
-    "Menu": "القائمة"
+    "Menu": "القائمة",
+    "Manage your digital presence from one place.": "أدر حضور TechNova الرقمي من مكان واحد.",
+    "Dashboard footer": "روابط تذييل لوحة التحكم",
+    "All rights reserved.": "جميع الحقوق محفوظة.",
+    "Made with care.": "صُنع بعناية.",
+    "CONTENT STUDIO": "استوديو المحتوى"
 }
