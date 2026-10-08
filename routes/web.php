@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FooterSettingsController;
 use App\Http\Controllers\PublicSiteController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::put('/account', [AccountController::class, 'update'])->name('account.update');
         Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/footer-settings', [FooterSettingsController::class, 'edit'])->name('footer-settings.edit');
+        Route::put('/footer-settings', [FooterSettingsController::class, 'update'])->name('footer-settings.update');
         Route::get('/{type}', [ContentController::class, 'index'])->name('content.index');
         Route::get('/{type}/create', [ContentController::class, 'create'])->name('content.create');
         Route::post('/{type}', [ContentController::class, 'store'])->name('content.store');

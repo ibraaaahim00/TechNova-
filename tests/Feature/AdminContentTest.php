@@ -18,8 +18,10 @@ uses(RefreshDatabase::class);
 
 it('redirects guests away from the CMS and forbids a regular account', function () {
     $this->get('/admin/services')->assertRedirect(route('admin.login'));
+    $this->get('/admin/footer-settings')->assertRedirect(route('admin.login'));
 
     $this->actingAs(User::factory()->create())->get('/admin/services')->assertForbidden();
+    $this->get('/admin/footer-settings')->assertForbidden();
 });
 
 it('renders the dashboard and an editable CMS form for an administrator', function () {
@@ -27,6 +29,30 @@ it('renders the dashboard and an editable CMS form for an administrator', functi
 
     $this->get('/admin')->assertOk()->assertSee('Good to see you')->assertSee('Quick actions');
     $this->get('/admin/services/create')->assertOk()->assertSee('Content details')->assertSee('Create item')->assertSee('translations[en][title]')->assertSee('translations[ar][title]');
+});
+
+it('lets administrators save bilingual public footer settings', function () {
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+    $this->get('/admin/footer-settings')->assertOk()->assertSee('Footer settings')->assertSee('contact_email');
+
+    $settings = [
+        'company_name' => ['en' => 'TechNova', 'ar' => 'تيكنوفا'],
+        'footer_brand_label' => ['en' => 'SOFTWARE SOLUTIONS', 'ar' => 'حلول برمجية'],
+        'footer_blurb' => ['en' => 'Thoughtful software for teams.', 'ar' => 'برمجيات مدروسة للفرق.'],
+        'footer_contact_label' => ['en' => 'START A CONVERSATION', 'ar' => 'ابدأ محادثة'],
+        'location' => ['en' => 'Available worldwide', 'ar' => 'متاحون حول العالم'],
+        'linkedin_url' => 'https://linkedin.com/company/technova',
+        'github_url' => 'https://github.com/technova',
+        'copyright_text' => ['en' => 'Built with care.', 'ar' => 'صُنع بعناية.'],
+    ];
+
+    $this->put('/admin/footer-settings', $settings + ['contact_email' => 'not-an-email'])->assertSessionHasErrors('contact_email');
+
+    $this->put('/admin/footer-settings', $settings + ['contact_email' => 'ebrahime131alaa@gmail.com'])
+        ->assertRedirect(route('admin.footer-settings.edit'));
+
+    $this->assertDatabaseHas('site_settings', ['key' => 'contact_email', 'value' => 'ebrahime131alaa@gmail.com']);
+    $this->get('/?lang=ar')->assertOk()->assertSee('mailto:ebrahime131alaa@gmail.com')->assertSee('متاحون حول العالم');
 });
 
 it('renders editable navigation and translated footer content on the public site', function () {
