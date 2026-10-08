@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         $settings = [
             'company_name' => 'TechNova',
-            'contact_email' => 'hello@technova.local',
+            'contact_email' => 'ebrahime131alaa@gmail.com',
             'location' => 'Available worldwide',
             'seo_title' => 'TechNova — Software Solutions',
             'seo_description' => 'Thoughtful software, designed and engineered for ambitious teams.',
