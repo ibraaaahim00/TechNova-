@@ -92,5 +92,7 @@ class DatabaseSeeder extends Seeder
             $record = Project::query()->firstOrCreate(['slug' => $project['slug']], $project + ['project_category_id' => $category->id, 'is_concept' => true, 'is_published' => true, 'is_featured' => true, 'sort_order' => $index + 1]);
             $record->technologies()->syncWithoutDetaching($technologies->slice($index, 3)->pluck('id'));
         }
+
+        $this->call(BilingualContentSeeder::class);
     }
 }

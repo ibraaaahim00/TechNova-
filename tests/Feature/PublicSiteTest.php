@@ -12,6 +12,19 @@ it('renders the TechNova homepage', function () {
     $this->get('/')->assertOk()->assertSee('TechNova')->assertSee('Digital products');
 });
 
+it('renders Arabic UI and translated content while preserving English fallback', function () {
+    HomeSection::factory()->create([
+        'key' => 'hero',
+        'title' => 'Product teams, meet progress.',
+        'body' => 'English fallback copy for an untranslated field.',
+        'translations' => ['ar' => ['title' => 'من الفكرة إلى منتج رقمي متقن']],
+    ]);
+
+    $this->get('/?lang=ar')->assertOk()->assertSee('lang="ar" dir="rtl"', false)->assertSee('من الفكرة إلى منتج رقمي متقن');
+    $this->get('/')->assertOk()->assertSee('lang="ar"', false)->assertSee('English fallback copy for an untranslated field.');
+    $this->get('/?lang=en')->assertOk()->assertSee('lang="en" dir="ltr"', false)->assertSee('Product teams, meet progress.');
+});
+
 it('renders homepage sections in their managed order and respects visibility', function () {
     $servicesSection = HomeSection::factory()->create(['key' => 'services_section', 'eyebrow' => 'CAPABILITIES MARKER', 'title' => 'Services marker', 'is_visible' => true, 'sort_order' => 1]);
     HomeSection::factory()->create(['key' => 'intro', 'eyebrow' => 'INTRO MARKER', 'title' => 'Intro marker', 'is_visible' => true, 'sort_order' => 2]);

@@ -23,7 +23,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('site.*', function ($view): void {
-            $view->with('siteSettings', SiteSetting::query()->pluck('value', 'key')->all());
+            $settings = SiteSetting::query()->get()->mapWithKeys(fn (SiteSetting $setting): array => [$setting->key => $setting->value])->all();
+            $view->with('siteSettings', $settings);
             $view->with('navigationItems', NavigationItem::query()->where('is_visible', true)->orderBy('sort_order')->get());
         });
     }

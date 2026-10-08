@@ -40,6 +40,13 @@ class PublicSiteController extends Controller
         return view('site.about', ['page' => $this->page('about'), 'sections' => HomeSection::query()->where('is_visible', true)->orderBy('sort_order')->get()->keyBy('key'), 'team' => TeamMember::query()->where('is_active', true)->orderBy('sort_order')->get()]);
     }
 
+    public function customPage(Page $page): View
+    {
+        abort_unless($page->is_published, 404);
+
+        return view('site.custom-page', compact('page'));
+    }
+
     public function services(): View
     {
         return view('site.services', ['page' => $this->page('services'), 'services' => Service::query()->where('is_published', true)->orderBy('sort_order')->paginate(9)]);
@@ -106,6 +113,7 @@ class PublicSiteController extends Controller
             'services' => Service::query()->where('is_published', true)->get(),
             'projects' => Project::query()->where('is_published', true)->get(),
             'posts' => Post::query()->where('is_published', true)->whereNotNull('published_at')->where('published_at', '<=', now())->get(),
+            'pages' => Page::query()->where('is_published', true)->whereNotIn('slug', ['about', 'services', 'projects', 'journal', 'contact'])->get(),
         ])->header('Content-Type', 'application/xml');
     }
 

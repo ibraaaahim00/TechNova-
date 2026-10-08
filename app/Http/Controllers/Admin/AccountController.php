@@ -33,6 +33,6 @@ class AccountController extends Controller
         }
         $user->save();
 
-        return back()->with('status', 'Account details saved.');
+        return back()->with('status', __('Account details saved.'));
     }
 }

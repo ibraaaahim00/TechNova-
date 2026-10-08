@@ -4,12 +4,12 @@
 @section('content')
 <section class="detail-hero">
     <div class="shell">
-        <a class="back-link" href="{{ route('projects.index') }}">← All work</a>
-        <div class="eyebrow"><span class="eyebrow-line"></span>{{ $project->is_concept ? 'CONCEPT PROJECT' : ($project->category?->name ?? 'SELECTED WORK') }}</div>
+        <a class="back-link" href="{{ route('projects.index') }}">← {{ __('All work') }}</a>
+        <div class="eyebrow"><span class="eyebrow-line"></span>{{ $project->is_concept ? __('CONCEPT PROJECT') : ($project->category?->name ?? __('SELECTED WORK')) }}</div>
         <h1>{{ $project->title }}</h1>
         <p>{{ $project->summary }}</p>
         @if($project->is_concept)
-            <span class="notice-pill">Independent concept project</span>
+            <span class="notice-pill">{{ __('Independent concept project') }}</span>
         @endif
     </div>
 </section>
@@ -20,10 +20,10 @@
         @endif
         <div class="detail-layout">
             <article class="prose">
-                <h2>The story behind the work.</h2>
+                <h2>{{ __('The story behind the work.') }}</h2>
                 <p>{!! nl2br(e($project->description)) !!}</p>
                 @if($project->technologies->isNotEmpty())
-                    <h3>Built with</h3>
+                    <h3>{{ __('Built with') }}</h3>
                     <div class="technology-pills">
                         @foreach($project->technologies as $technology)
                             <span>{{ $technology->name }}</span>
@@ -31,19 +31,19 @@
                     </div>
                 @endif
                 @if($project->client_name)
-                    <p><b>Client:</b> {{ $project->client_name }}</p>
+                    <p><b>{{ __('Client:') }}</b> {{ $project->client_name }}</p>
                 @endif
             </article>
             <aside class="detail-aside">
-                <span>PROJECT DETAILS</span>
+                <span>{{ __('PROJECT DETAILS') }}</span>
                 @if($project->completed_at)
-                    <p>Completed {{ $project->completed_at->format('Y') }}</p>
+                    <p>{{ __('Completed') }} {{ $project->completed_at->format('Y') }}</p>
                 @endif
                 @if($project->project_url)
-                    <a class="text-link" href="{{ $project->project_url }}" target="_blank" rel="noopener noreferrer">Visit project ↗</a>
+                    <a class="text-link" href="{{ $project->project_url }}" target="_blank" rel="noopener noreferrer">{{ __('Visit project') }} ↗</a>
                 @endif
                 @if($project->github_url)
-                    <a class="text-link" href="{{ $project->github_url }}" target="_blank" rel="noopener noreferrer">Source code ↗</a>
+                    <a class="text-link" href="{{ $project->github_url }}" target="_blank" rel="noopener noreferrer">{{ __('Source code') }} ↗</a>
                 @endif
             </aside>
         </div>

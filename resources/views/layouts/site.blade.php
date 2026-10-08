@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', $siteSettings['seo_title'] ?? 'TechNova — Software Solutions')</title>
-    <meta name="description" content="@yield('meta_description', $siteSettings['seo_description'] ?? 'Digital products designed and engineered for ambitious teams.')">
+    <title>@yield('title', $siteSettings['seo_title'] ?? __('TechNova — Software Solutions'))</title>
+    <meta name="description" content="@yield('meta_description', $siteSettings['seo_description'] ?? __('Digital products designed and engineered for ambitious teams.'))">
     <meta property="og:title" content="@yield('title', $siteSettings['seo_title'] ?? 'TechNova — Software Solutions')">
     <meta property="og:description" content="@yield('meta_description', $siteSettings['seo_description'] ?? 'Digital products designed and engineered for ambitious teams.')">
     <meta property="og:type" content="website">
@@ -17,23 +17,24 @@
     @if($shareImage)<meta property="og:image" content="{{ $shareImage }}">@endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="site-body">
 <header class="site-header"><div class="shell nav-shell">
-    <a class="brand" href="{{ route('home') }}">@if($siteSettings['logo_path'] ?? false)<img class="brand-image" src="{{ Storage::disk('public')->url($siteSettings['logo_path']) }}" alt="{{ $siteSettings['company_name'] ?? 'TechNova' }}">@else<span class="brand-mark">✦</span>@endif<span>{{ $siteSettings['company_name'] ?? 'TechNova' }}<small>SOFTWARE SOLUTIONS</small></span></a>
+    <a class="brand" href="{{ route('home') }}">@if($siteSettings['logo_path'] ?? false)<img class="brand-image" src="{{ Storage::disk('public')->url($siteSettings['logo_path']) }}" alt="{{ $siteSettings['company_name'] ?? 'TechNova' }}">@else<span class="brand-mark">✦</span>@endif<span>{{ $siteSettings['company_name'] ?? 'TechNova' }}<small>{{ __('SOFTWARE SOLUTIONS') }}</small></span></a>
     <button class="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" data-menu-toggle><span></span><span></span></button>
     <nav class="site-nav" data-menu>
         @forelse($navigationItems as $item)
             <a href="{{ str_starts_with($item->url, '/') ? url($item->url) : $item->url }}">{{ $item->label }}</a>
         @empty
-            <a href="{{ route('home') }}">Home</a><a href="{{ route('services.index') }}">Services</a><a href="{{ route('projects.index') }}">Work</a><a href="{{ route('about') }}">About</a><a href="{{ route('posts.index') }}">Journal</a>
+            <a href="{{ route('home') }}">{{ __('Home') }}</a><a href="{{ route('services.index') }}">{{ __('Services') }}</a><a href="{{ route('projects.index') }}">{{ __('Work') }}</a><a href="{{ route('about') }}">{{ __('About') }}</a><a href="{{ route('posts.index') }}">{{ __('Journal') }}</a>
         @endforelse
-        <a class="nav-cta" href="{{ route('contact') }}">Let's talk <span>↗</span></a>
+        <a class="nav-cta" href="{{ route('contact') }}">{{ __('Let\'s talk') }} <span>↗</span></a>
+        <a class="language-switch" href="{{ url()->current() }}?lang={{ app()->getLocale() === 'ar' ? 'en' : 'ar' }}" lang="{{ app()->getLocale() === 'ar' ? 'en' : 'ar' }}">{{ app()->getLocale() === 'ar' ? 'English' : 'العربية' }}</a>
     </nav>
 </div></header>
 <main>@yield('content')</main>
-<footer class="site-footer"><div class="shell footer-top"><div><a class="brand" href="{{ route('home') }}">@if($siteSettings['logo_path'] ?? false)<img class="brand-image" src="{{ Storage::disk('public')->url($siteSettings['logo_path']) }}" alt="{{ $siteSettings['company_name'] ?? 'TechNova' }}">@else<span class="brand-mark">✦</span>@endif<span>{{ $siteSettings['company_name'] ?? 'TechNova' }}<small>SOFTWARE SOLUTIONS</small></span></a><p>{{ $siteSettings['footer_blurb'] ?? '' }}</p><div class="footer-social">@foreach($socialLinks as $label=>$url)<a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $label }} ↗</a>@endforeach</div></div><div class="footer-links"><a href="{{ route('services.index') }}">Services</a><a href="{{ route('projects.index') }}">Work</a><a href="{{ route('about') }}">About</a><a href="{{ route('posts.index') }}">Journal</a><a href="{{ route('contact') }}">Contact</a></div><div class="footer-contact"><span>START A CONVERSATION</span>@if($siteSettings['contact_email'] ?? false)<a href="mailto:{{ $siteSettings['contact_email'] }}">{{ $siteSettings['contact_email'] }}</a>@endif @if($siteSettings['location'] ?? false)<span>{{ $siteSettings['location'] }}</span>@endif</div></div><div class="shell footer-bottom"><span>© {{ now()->year }} {{ $siteSettings['company_name'] ?? 'TechNova' }}. {{ $siteSettings['copyright_text'] ?? '' }}</span><a href="{{ route('admin.login') }}">Admin</a></div></footer>
+<footer class="site-footer"><div class="shell footer-top"><div><a class="brand" href="{{ route('home') }}">@if($siteSettings['logo_path'] ?? false)<img class="brand-image" src="{{ Storage::disk('public')->url($siteSettings['logo_path']) }}" alt="{{ $siteSettings['company_name'] ?? 'TechNova' }}">@else<span class="brand-mark">✦</span>@endif<span>{{ $siteSettings['company_name'] ?? 'TechNova' }}<small>{{ __('SOFTWARE SOLUTIONS') }}</small></span></a><p>{{ $siteSettings['footer_blurb'] ?? '' }}</p><div class="footer-social">@foreach($socialLinks as $label=>$url)<a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $label }} ↗</a>@endforeach</div></div><div class="footer-links"><a href="{{ route('services.index') }}">{{ __('Services') }}</a><a href="{{ route('projects.index') }}">{{ __('Work') }}</a><a href="{{ route('about') }}">{{ __('About') }}</a><a href="{{ route('posts.index') }}">{{ __('Journal') }}</a><a href="{{ route('contact') }}">{{ __('Contact') }}</a></div><div class="footer-contact"><span>{{ __('START A CONVERSATION') }}</span>@if($siteSettings['contact_email'] ?? false)<a href="mailto:{{ $siteSettings['contact_email'] }}">{{ $siteSettings['contact_email'] }}</a>@endif @if($siteSettings['location'] ?? false)<span>{{ $siteSettings['location'] }}</span>@endif</div></div><div class="shell footer-bottom"><span>© {{ now()->year }} {{ $siteSettings['company_name'] ?? 'TechNova' }}. {{ $siteSettings['copyright_text'] ?? '' }}</span><a href="{{ route('admin.login') }}">{{ __('Admin') }}</a></div></footer>
 </body>
 </html>

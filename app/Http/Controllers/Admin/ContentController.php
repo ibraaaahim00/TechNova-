@@ -26,6 +26,20 @@ use Illuminate\View\View;
 
 class ContentController extends Controller
 {
+    private const TRANSLATABLE_FIELDS = [
+        'services' => ['title', 'summary', 'description', 'features', 'seo_title', 'seo_description'],
+        'projects' => ['title', 'summary', 'description', 'client_name', 'seo_title', 'seo_description'],
+        'posts' => ['title', 'excerpt', 'body', 'seo_title', 'seo_description'],
+        'team' => ['name', 'role', 'bio', 'skills'],
+        'testimonials' => ['person_name', 'person_role', 'company', 'quote'],
+        'sections' => ['eyebrow', 'title', 'body', 'primary_label', 'secondary_label'],
+        'pages' => ['title', 'eyebrow', 'intro', 'seo_title', 'seo_description'],
+        'settings' => ['value'],
+        'navigation' => ['label'],
+        'project-categories' => ['name'],
+        'blog-categories' => ['name'],
+    ];
+
     private const RESOURCES = [
         'services' => ['label' => 'Services', 'model' => Service::class, 'fields' => ['title' => 'text', 'slug' => 'text', 'icon' => 'text', 'summary' => 'textarea', 'description' => 'richtext', 'features' => 'list', 'image_path' => 'image', 'seo_title' => 'text', 'seo_description' => 'textarea', 'is_published' => 'boolean', 'is_featured' => 'boolean', 'sort_order' => 'number']],
         'projects' => ['label' => 'Projects', 'model' => Project::class, 'fields' => ['title' => 'text', 'slug' => 'text', 'project_category_id' => 'project_category', 'technologies' => 'technology_list', 'summary' => 'textarea', 'description' => 'richtext', 'client_name' => 'text', 'completed_at' => 'date', 'project_url' => 'url', 'github_url' => 'url', 'image_path' => 'image', 'seo_title' => 'text', 'seo_description' => 'textarea', 'is_concept' => 'boolean', 'is_published' => 'boolean', 'is_featured' => 'boolean', 'sort_order' => 'number']],
@@ -70,7 +84,7 @@ class ContentController extends Controller
             $record->technologies()->sync($technologyIds);
         }
 
-        return redirect()->route('admin.content.index', $type)->with('status', $config['label'].' created.');
+        return redirect()->route('admin.content.index', $type)->with('status', __('Created successfully.'));
     }
 
     public function edit(string $type, int $id): View
@@ -90,7 +104,7 @@ class ContentController extends Controller
             $action = $request->validate(['action' => ['required', Rule::in(['read', 'unread', 'archive'])]])['action'];
             $record->forceFill(['read_at' => $action === 'read' ? now() : ($action === 'unread' ? null : $record->read_at), 'archived_at' => $action === 'archive' ? now() : $record->archived_at])->save();
 
-            return back()->with('status', 'Message status updated.');
+            return back()->with('status', __('Message status updated.'));
         }
 
         $data = $this->validatedData($request, $type, $config, $record);
@@ -101,7 +115,7 @@ class ContentController extends Controller
             $record->technologies()->sync($technologyIds);
         }
 
-        return redirect()->route('admin.content.index', $type)->with('status', $config['label'].' updated.');
+        return redirect()->route('admin.content.index', $type)->with('status', __('Changes saved successfully.'));
     }
 
     public function destroy(string $type, int $id): RedirectResponse
@@ -117,7 +131,7 @@ class ContentController extends Controller
 
         $record->delete();
 
-        return redirect()->route('admin.content.index', $type)->with('status', $config['label'].' deleted.');
+        return redirect()->route('admin.content.index', $type)->with('status', __('Deleted successfully.'));
     }
 
     /** @return array{label: string, model: class-string<Model>, fields: array<string, string>} */
@@ -125,7 +139,10 @@ class ContentController extends Controller
     {
         abort_unless(isset(self::RESOURCES[$type]), 404);
 
-        return self::RESOURCES[$type];
+        $config = self::RESOURCES[$type];
+        $config['translated_fields'] = self::TRANSLATABLE_FIELDS[$type] ?? [];
+
+        return $config;
     }
 
     /** @param array{label: string, model: class-string<Model>, fields: array<string, string>} $config
@@ -134,15 +151,28 @@ class ContentController extends Controller
     private function validatedData(Request $request, string $type, array $config, ?Model $record): array
     {
         $rules = [];
+        $translatable = self::TRANSLATABLE_FIELDS[$type] ?? [];
+        if ($type === 'settings' && in_array($request->input('key'), ['logo_path', 'favicon_path'], true)) {
+            $translatable = [];
+        }
+        foreach ($translatable as $field) {
+            if ($request->exists($field) && ! $request->exists("translations.en.$field")) {
+                $request->merge(['translations' => array_replace_recursive($request->input('translations', []), ['en' => [$field => $request->input($field)]])]);
+            }
+        }
+
         foreach ($config['fields'] as $field => $kind) {
-            $rules[$field] = match ($kind) {
+            $fieldRules = match ($kind) {
                 'text' => ['nullable', 'string', 'max:255'],
                 'textarea', 'richtext' => ['nullable', 'string', 'max:20000'],
                 'number' => ['nullable', 'integer', 'min:0', 'max:999999'],
                 'boolean' => ['sometimes', 'boolean'],
                 'url' => ['nullable', 'url:http,https', 'max:2048'],
                 'link' => ['nullable', 'string', 'max:2048', function (string $attribute, mixed $value, \Closure $fail): void {
-                    if (blank($value) || str_starts_with($value, '/') || str_starts_with($value, '#')) {
+                    if (blank($value) || str_starts_with($value, '#')) {
+                        return;
+                    }
+                    if (str_starts_with($value, '/') && ! str_starts_with($value, '//') && ! str_contains($value, '\\')) {
                         return;
                     }
                     $scheme = strtolower((string) parse_url($value, PHP_URL_SCHEME));
@@ -160,6 +190,13 @@ class ContentController extends Controller
                 'technology_list' => ['nullable', 'array'],
                 default => ['nullable'],
             };
+            if (in_array($field, $translatable, true)) {
+                foreach (['en', 'ar'] as $locale) {
+                    $rules["translations.$locale.$field"] = $fieldRules;
+                }
+            } else {
+                $rules[$field] = $fieldRules;
+            }
         }
         foreach (['slug'] as $slugField) {
             if (array_key_exists($slugField, $config['fields'])) {
@@ -170,26 +207,64 @@ class ContentController extends Controller
         if (in_array($type, ['sections', 'settings'], true)) {
             $rules['key'] = ['required', 'string', 'max:100', Rule::unique((new $config['model'])->getTable(), 'key')->ignore($record?->getKey())];
         }
-        if (in_array($type, ['project-categories', 'technologies', 'blog-categories'], true)) {
+        if (in_array($type, ['project-categories', 'technologies', 'blog-categories'], true) && ! in_array('name', $translatable, true)) {
             $rules['name'] = ['required', 'string', 'max:255'];
         }
-        if (in_array($type, ['services', 'projects', 'posts'], true)) {
-            $rules['title'] = ['required', 'string', 'max:255'];
-        }
-        if ($type === 'team') {
-            $rules['name'] = ['required', 'string', 'max:255'];
-            $rules['role'] = ['required', 'string', 'max:255'];
+        $requiredTranslations = match ($type) {
+            'services', 'projects', 'posts', 'pages' => ['title'],
+            'team' => ['name', 'role'],
+            'testimonials' => ['person_name', 'quote'],
+            'project-categories', 'blog-categories' => ['name'],
+            default => [],
+        };
+        foreach ($requiredTranslations as $field) {
+            foreach (['en', 'ar'] as $locale) {
+                $otherLocale = $locale === 'en' ? 'ar' : 'en';
+                $rules["translations.$locale.$field"] = ['nullable', 'string', 'max:'.($field === 'quote' ? 5000 : 255)];
+                if ($locale === 'en') {
+                    $rules["translations.$locale.$field"][] = "required_without:translations.$otherLocale.$field";
+                }
+            }
         }
         if ($type === 'navigation') {
-            $rules['label'] = ['required', 'string', 'max:255'];
-            $rules['url'] = ['required', 'string', 'max:2048', 'regex:/^(\/|#|https?:\/\/)/i'];
-        }
-        if ($type === 'testimonials') {
-            $rules['person_name'] = ['required', 'string', 'max:255'];
-            $rules['quote'] = ['required', 'string', 'max:5000'];
+            $rules['url'] = ['required', 'string', 'max:2048', function (string $attribute, mixed $value, \Closure $fail): void {
+                $isLocalPath = str_starts_with($value, '/') && ! str_starts_with($value, '//') && ! str_contains($value, '\\');
+                $isFragment = str_starts_with($value, '#');
+                $scheme = strtolower((string) parse_url($value, PHP_URL_SCHEME));
+                $isExternalUrl = filter_var($value, FILTER_VALIDATE_URL) && in_array($scheme, ['http', 'https'], true);
+
+                if (! $isLocalPath && ! $isFragment && ! $isExternalUrl) {
+                    $fail('Enter a local path, fragment, or HTTP/HTTPS URL.');
+                }
+            }];
         }
 
         $data = $request->validate($rules);
+        $translationData = $data['translations'] ?? [];
+        unset($data['translations']);
+        $translations = $record?->translations ?? [];
+        foreach (['en', 'ar'] as $locale) {
+            foreach ($translatable as $field) {
+                if (array_key_exists($field, $translationData[$locale] ?? [])) {
+                    $value = $translationData[$locale][$field];
+                    if (in_array($field, ['features', 'skills'], true)) {
+                        $value = collect(preg_split('/\r\n|\r|\n/', (string) $value))->map(fn ($item) => trim($item))->filter()->values()->all();
+                    }
+                    $translations[$locale][$field] = $value;
+                }
+            }
+        }
+        if ($translatable !== []) {
+            $data['translations'] = $translations;
+            foreach ($requiredTranslations as $field) {
+                if (! array_key_exists($field, $data)) {
+                    $data[$field] = $translations['en'][$field] ?? $translations['ar'][$field] ?? null;
+                }
+            }
+            if (in_array('value', $translatable, true) && $type === 'settings') {
+                $data['value'] = $translations['en']['value'] ?? $translations['ar']['value'] ?? ($record?->getRawOriginal('value'));
+            }
+        }
         if ($type === 'projects') {
             $data = array_merge($data, $request->validate(['technologies' => ['nullable', 'array'], 'technologies.*' => ['integer', 'exists:technologies,id']]));
         }

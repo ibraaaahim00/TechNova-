@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicSiteController::class, 'home'])->name('home');
 Route::get('/about', [PublicSiteController::class, 'about'])->name('about');
+Route::get('/p/{page:slug}', [PublicSiteController::class, 'customPage'])->name('pages.show');
 Route::get('/services', [PublicSiteController::class, 'services'])->name('services.index');
 Route::get('/services/{service:slug}', [PublicSiteController::class, 'service'])->name('services.show');
 Route::get('/projects', [PublicSiteController::class, 'projects'])->name('projects.index');

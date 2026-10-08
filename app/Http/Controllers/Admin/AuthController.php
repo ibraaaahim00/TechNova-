@@ -21,7 +21,7 @@ class AuthController extends Controller
         $credentials['is_admin'] = true;
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            return back()->withErrors(['email' => 'Those administrator credentials could not be verified.'])->onlyInput('email');
+            return back()->withErrors(['email' => __('Those administrator credentials could not be verified.')])->onlyInput('email');
         }
 
         $request->session()->regenerate();

@@ -9,4 +9,5 @@
     @foreach($services as $service)<url><loc>{{ route('services.show', $service) }}</loc><lastmod>{{ $service->updated_at->toAtomString() }}</lastmod></url>@endforeach
     @foreach($projects as $project)<url><loc>{{ route('projects.show', $project) }}</loc><lastmod>{{ $project->updated_at->toAtomString() }}</lastmod></url>@endforeach
     @foreach($posts as $post)<url><loc>{{ route('posts.show', $post) }}</loc><lastmod>{{ $post->updated_at->toAtomString() }}</lastmod></url>@endforeach
+    @foreach($pages as $page)<url><loc>{{ route('pages.show', $page) }}</loc><lastmod>{{ $page->updated_at->toAtomString() }}</lastmod></url>@endforeach
 </urlset>
