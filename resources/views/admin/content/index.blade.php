@@ -2,7 +2,7 @@
 @section('title', __($config['label']))
 @section('crumb', __($config['label']))
 @section('content')
-<div class="admin-page-heading"><div><span class="admin-kicker">{{ __('CONTENT MANAGEMENT') }}</span><h1>{{ __($config['label']) }}</h1><p>{{ __('Manage the content that appears on your public website.') }}</p></div>@if($type !== 'messages')<a class="button button-primary" href="{{ route('admin.content.create', $type) }}">＋ {{ __('Add') }} {{ __(str($config['label'])->singular()->lower()->toString()) }}</a>@endif</div>
+<div class="admin-page-heading"><div><span class="admin-kicker">{{ __('CONTENT MANAGEMENT') }}</span><h1>{{ __($config['label']) }}</h1><p>{{ $type === 'settings' ? __('These settings control the public footer, company details, contact information, and social links.') : ($type === 'navigation' ? __('These links appear in the public website header and footer.') : __('Manage the content that appears on your public website.')) }}</p></div>@if($type !== 'messages')<a class="button button-primary" href="{{ route('admin.content.create', $type) }}">＋ {{ __('Add') }} {{ __(str($config['label'])->singular()->lower()->toString()) }}</a>@endif</div>
 <section class="admin-table-wrap"><div class="table-toolbar"><span>{{ $records->total() }} {{ __(str($config['label'])->lower()->toString()) }}</span><span>{{ __('Changes publish to the website immediately') }}</span></div>
     @if($records->isEmpty())<div class="admin-empty"><span>▦</span><h2>{{ __('Nothing here yet') }}</h2><p>{{ __('Add your first item to get started.') }}</p>@if($type !== 'messages')<a class="button button-primary" href="{{ route('admin.content.create', $type) }}">{{ __('Create item') }}</a>@endif</div>
     @else

@@ -296,9 +296,6 @@
     "The photo path field must be an image.": "يجب أن تكون الصورة الشخصية ملف صورة صالحًا.",
     "The cover path field must be an image.": "يجب أن تكون صورة الغلاف ملف صورة صالحًا.",
     "Menu": "القائمة",
-    "Manage your digital presence from one place.": "أدر حضور TechNova الرقمي من مكان واحد.",
-    "Dashboard footer": "روابط تذييل لوحة التحكم",
-    "All rights reserved.": "جميع الحقوق محفوظة.",
-    "Made with care.": "صُنع بعناية.",
-    "CONTENT STUDIO": "استوديو المحتوى"
+    "These settings control the public footer, company details, contact information, and social links.": "تتحكم هذه الإعدادات في تذييل الموقع العام وبيانات الشركة والتواصل وروابط التواصل الاجتماعي.",
+    "These links appear in the public website header and footer.": "تظهر هذه الروابط في ترويسة الموقع العام وتذييله."
 }

@@ -2,6 +2,7 @@
 
 use App\Models\ContactMessage;
 use App\Models\HomeSection;
+use App\Models\NavigationItem;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\Project;
@@ -24,9 +25,33 @@ it('redirects guests away from the CMS and forbids a regular account', function 
 it('renders the dashboard and an editable CMS form for an administrator', function () {
     $this->actingAs(User::factory()->create(['is_admin' => true]));
 
-    $this->get('/admin')->assertOk()->assertSee('Good to see you')->assertSee('Quick actions')->assertSee('Dashboard footer links')->assertSee('All rights reserved.');
+    $this->get('/admin')->assertOk()->assertSee('Good to see you')->assertSee('Quick actions');
     $this->get('/admin/services/create')->assertOk()->assertSee('Content details')->assertSee('Create item')->assertSee('translations[en][title]')->assertSee('translations[ar][title]');
-    $this->get('/admin?lang=ar')->assertOk()->assertSee('روابط تذييل لوحة التحكم')->assertSee('أدر حضور TechNova الرقمي من مكان واحد.')->assertSee('dir="rtl"', false);
+});
+
+it('renders editable navigation and translated footer content on the public site', function () {
+    NavigationItem::query()->create([
+        'label' => 'Solutions',
+        'url' => '/services',
+        'is_visible' => true,
+        'sort_order' => 1,
+        'translations' => ['en' => ['label' => 'Solutions'], 'ar' => ['label' => 'الحلول']],
+    ]);
+    SiteSetting::query()->create([
+        'key' => 'footer_blurb',
+        'value' => 'Thoughtful digital products.',
+        'translations' => ['en' => ['value' => 'Thoughtful digital products.'], 'ar' => ['value' => 'منتجات رقمية مدروسة.']],
+    ]);
+
+    $english = $this->get('/?lang=en')->assertOk()->getContent();
+    $englishFooter = substr($english, strpos($english, '<footer class="site-footer">'));
+    $this->assertStringContainsString('Solutions', $englishFooter);
+    $this->assertStringContainsString('Thoughtful digital products.', $englishFooter);
+
+    $arabic = $this->get('/?lang=ar')->assertOk()->getContent();
+    $arabicFooter = substr($arabic, strpos($arabic, '<footer class="site-footer">'));
+    $this->assertStringContainsString('الحلول', $arabicFooter);
+    $this->assertStringContainsString('منتجات رقمية مدروسة.', $arabicFooter);
 });
 
 it('creates, edits, publishes, unpublishes and deletes translated CMS content with uploads', function () {
