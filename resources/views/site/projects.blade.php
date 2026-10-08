@@ -1,0 +1,8 @@
+@extends('layouts.site')
+@section('title', $page->seo_title ?: $page->title)
+@section('meta_description', $page->seo_description ?: $page->intro)
+@section('content')
+<section class="page-hero"><div class="shell"><div class="eyebrow"><span class="eyebrow-line"></span>{{ $page->eyebrow }}</div><h1>{{ $page->title }}</h1><p>{{ $page->intro }}</p></div></section>
+<section class="section section-muted"><div class="shell">@if($categories->isNotEmpty())<div class="category-filter"><a class="{{ request('category') ? '' : 'selected' }}" href="{{ route('projects.index') }}">All work</a>@foreach($categories as $category)<a class="{{ request('category')===$category->slug ? 'selected' : '' }}" href="{{ route('projects.index', ['category' => $category->slug]) }}">{{ $category->name }}</a>@endforeach</div>@endif
+@if($projects->isEmpty())<div class="empty-state"><span>⌘</span><h2>New work is taking shape.</h2><p>There aren't any published projects just yet.</p></div>@else<div class="project-grid">@foreach($projects as $project)<a class="project-card" href="{{ route('projects.show', $project) }}"><div class="project-image">@if($project->image_path)<img src="{{ Storage::disk('public')->url($project->image_path) }}" alt="{{ $project->title }}">@else<div class="project-art project-art-{{ $loop->iteration % 3 + 1 }}"><div class="art-window"><span></span><span></span><span></span><b>{{ str($project->title)->substr(0, 1) }}</b></div></div>@endif</div><div class="project-meta"><div><span>{{ $project->is_concept ? 'CONCEPT PROJECT' : ($project->category?->name ?? 'SELECTED WORK') }}</span><h3>{{ $project->title }}</h3></div><b>↗</b></div><p>{{ $project->summary }}</p></a>@endforeach</div>{{ $projects->links() }}@endif</div></section>
+@endsection
